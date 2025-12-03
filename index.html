@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lion Heart International Group - Powering Global Progress</title>
+    <link rel="stylesheet" href="style/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- NavigationS -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">🦁</div>
+                <div class="logo-text">
+                    <span class="logo-main">Lion Heart</span>
+                    <span class="logo-sub">International Group</span>
+                </div>
+            </a>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#companies" class="nav-link">Companies</a>
+                <a href="#leadership" class="nav-link">Leadership</a>
+                <a href="#sectors" class="nav-link">Sectors</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Lion Heart International Group.</h1>
+            <h2 class="hero-subtitle">Powering Global Progress</h2>
+            <p class="hero-description">A diversified global conglomerate driving innovation across communications, agriculture, mining, infrastructure, and premium commodities.</p>
+            <a href="#companies" class="cta-button primary-cta">Discover Our Companies</a>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About the Group</h2>
+                <div class="title-decoration"></div>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>With a presence across Papua New Guinea, Australia, and South Africa, Lion Heart International Group strategically invests in and scales enterprises that shape industries and communities.</p>
+                    <p>Our vision is to create sustainable value through strategic investments, operational excellence, and a commitment to the communities where we operate.</p>
+                </div>
+                <div class="about-map-container">
+                    <div id="global-map"></div>
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #d4af37;"></div>
+                            <span>Headquarters</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #c0392b;"></div>
+                            <span>Operations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Companies Showcase -->
+    <section id="companies" class="section companies">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Portfolio Companies</h2>
+                <div class="title-decoration"></div>
+                <p class="section-subtitle">Strategic enterprises driving innovation across the globe</p>
+            </div>
+            <div class="companies-grid">
+                <!-- Companies will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Leadership Section -->
+    <section id="leadership" class="section leadership">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">The Visionaries at Our Helm</h2>
+                <div class="title-decoration"></div>
+            </div>
+            <div class="leadership-grid">
+                <!-- Leadership profiles will be populated by JavaScript -->
+            </div>
+            <div class="text-center">
+                <a href="#contact" class="cta-button secondary-cta">Meet Our Leaders</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Impact / Key Sectors -->
+    <section id="sectors" class="section sectors">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Global Impact & Key Sectors</h2>
+                <div class="title-decoration"></div>
+            </div>
+            <div class="sectors-container">
+                <div class="sectors-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Continents</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Companies</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Core Regions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Years of Excellence</div>
+                    </div>
+                </div>
+                <div class="sectors-grid">
+                    <!-- Sectors will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Explore how Lion Heart International Group is building tomorrow's legacy.</h2>
+                <div class="cta-buttons">
+                    <a href="#companies" class="cta-button primary-cta">View Our Portfolio</a>
+                    <a href="#contact" class="cta-button outline-cta">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="#" class="logo footer-logo">
+                        <div class="logo-icon">🦁</div>
+                        <div class="logo-text">
+                            <span class="logo-main">Lion Heart</span>
+                            <span class="logo-sub">International Group</span>
+                        </div>
+                    </a>
+                    <p class="footer-description">A global conglomerate driving innovation and sustainable growth across multiple industries.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h3 class="link-title">Companies</h3>
+                        <a href="#" class="footer-link">Lion Heart International – PNG</a>
+                        <a href="#" class="footer-link">Lion Heart International – Australia</a>
+                        <a href="#" class="footer-link">Lion Heart International – South Africa</a>
+                        <a href="#" class="footer-link">Genesis Communications PNG Ltd.</a>
+                        <a href="#" class="footer-link">Genesis Communications Australia</a>
+                        <a href="#" class="footer-link">Lion Heart Agriculture Mineral Investments LTD</a>
+                        <a href="#" class="footer-link">Lion Track Limited</a>
+                        <a href="#" class="footer-link">Superior Coffee (Australia) Limited</a>
+                    </div>
+                    <div class="link-group">
+                        <h3 class="link-title">Contact</h3>
+                        <p class="contact-info"><i class="fas fa-map-marker-alt"></i> Global Headquarters: Port Moresby, Papua New Guinea</p>
+                        <p class="contact-info"><i class="fas fa-phone"></i> +675 123 4567</p>
+                        <p class="contact-info"><i class="fas fa-envelope"></i> info@lionheartinternational.com</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2023 Lion Heart International Group. All rights reserved.</p>
+                <div class="legal-links">
+                    <a href="#" class="legal-link">Privacy Policy</a>
+                    <a href="#" class="legal-link">Terms of Use</a>
+                    <a href="#" class="legal-link">Disclaimer</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="scripts/index.js"></script>
+</body>
+</html>
