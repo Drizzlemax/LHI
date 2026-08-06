@@ -58,7 +58,18 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
 async def init_db() -> None:
     """Initialize database - create tables if needed."""
     from src.models.base import Base
-    from src.models.content import Document, DocumentVersion, Collection, Tag
+    from src.models.content import (
+        Content,
+        ContentMetadata,
+        ContentVector,
+        ContentVersion,
+        MediaAsset,
+        Collection,
+        ContentCollection,
+        LearningPath,
+        LearningPathContent,
+        Tag,
+    )
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
