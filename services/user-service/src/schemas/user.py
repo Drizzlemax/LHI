@@ -13,6 +13,7 @@ class UserProfileUpdate(BaseModel):
 
     full_name: str | None = Field(default=None, min_length=1, max_length=100)
     avatar_url: str | None = Field(default=None, max_length=500)
+    preferences: dict | None = None
 
 
 class LearningProfileUpdate(BaseModel):
@@ -66,7 +67,7 @@ class InstitutionSummary(BaseModel):
     domain: str
 
 
-class UserProfile(BaseModel):
+class UserProfileResponse(BaseModel):
     """Response schema for user profile."""
 
     id: UUID
@@ -80,8 +81,11 @@ class UserProfile(BaseModel):
     is_verified: bool
     mfa_enabled: bool
 
+    class Config:
+        from_attributes = True
 
-class LearningProfile(BaseModel):
+
+class LearningProfileResponse(BaseModel):
     """Response schema for learning profile."""
 
     id: UUID
@@ -93,7 +97,11 @@ class LearningProfile(BaseModel):
     preferred_content_types: list[str] | None = None
     availability: dict | None = None
     accessibility_needs: dict | None = None
+    created_at: datetime
     updated_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class UserPreferences(BaseModel):
@@ -103,3 +111,38 @@ class UserPreferences(BaseModel):
     theme: str = "system"
     notifications: dict = Field(default_factory=dict)
     display: dict = Field(default_factory=dict)
+
+
+class UserListResponse(BaseModel):
+    """Response schema for paginated user list."""
+
+    users: list[UserProfileResponse]
+    total: int
+    skip: int
+    limit: int
+
+
+class PasswordChange(BaseModel):
+    """Request schema for changing password."""
+
+    current_password: str
+    new_password: str = Field(min_length=8, max_length=128)
+    revoke_all_sessions: bool = False
+
+
+class PasswordResetRequest(BaseModel):
+    """Request schema for password reset request."""
+
+    email: str
+
+
+class PasswordResetConfirm(BaseModel):
+    """Request schema for password reset confirmation."""
+
+    token: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+# Aliases for backward compatibility
+UserProfile = UserProfileResponse
+LearningProfile = LearningProfileResponse
