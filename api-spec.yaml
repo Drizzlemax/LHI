@@ -1,0 +1,2309 @@
+openapi: 3.1.0
+info:
+  title: PANDORA Universal Learning Platform API
+  description: |
+    AI-powered universal learning platform that democratizes access to knowledge
+    through personalized learning paths, RAG-powered search, and adaptive curriculum generation.
+  version: 1.0.0
+  contact:
+    name: PANDORA Development Team
+    url: https://pandora.edu
+    email: api-support@pandora.edu
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.pandora.edu/v1
+    description: Production server
+  - url: https://api.staging.pandora.edu/v1
+    description: Staging server
+  - url: https://api.dev.pandora.edu/v1
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management and profiles
+  - name: Content
+    description: Educational content management
+  - name: Search
+    description: Content search and discovery
+  - name: Learning Paths
+    description: Learning path management
+  - name: Progress
+    description: Learning progress tracking
+  - name: Assessments
+    description: Quizzes and assessments
+  - name: Recommendations
+    description: Personalized recommendations
+  - name: AI
+    description: AI-powered features
+  - name: Knowledge Graph
+    description: Knowledge graph operations
+  - name: Analytics
+    description: Learning analytics
+  - name: Admin
+    description: Administrative operations
+
+paths:
+  # ============== Authentication ==============
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: "student@university.edu"
+              password: "SecurePass123!"
+              full_name: "Jane Doe"
+              role: "learner"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      operationId: refreshToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      operationId: logoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logout successful
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/mfa/setup:
+    post:
+      tags: [Authentication]
+      summary: Setup MFA
+      operationId: setupMFA
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA setup successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MFASetupResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ============== Users ==============
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      operationId: updateCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: User profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/learning-profile:
+    get:
+      tags: [Users]
+      summary: Get learning profile
+      operationId: getLearningProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Learning profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags: [Users]
+      summary: Replace learning profile
+      operationId: updateLearningProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningProfile'
+      responses:
+        '200':
+          description: Learning profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/preferences:
+    get:
+      tags: [Users]
+      summary: Get user preferences
+      operationId: getPreferences
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User preferences retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreferences'
+
+    patch:
+      tags: [Users]
+      summary: Update user preferences
+      operationId: updatePreferences
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPreferencesUpdate'
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreferences'
+
+  # ============== Content ==============
+  /content:
+    get:
+      tags: [Content]
+      summary: List content items
+      operationId: listContent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/ContentType'
+        - name: level
+          in: query
+          schema:
+            $ref: '#/components/schemas/EducationLevel'
+        - name: language
+          in: query
+          schema:
+            type: string
+            default: en
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Content list retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentListResponse'
+
+  /content/{content_id}:
+    get:
+      tags: [Content]
+      summary: Get content item
+      operationId: getContent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ContentId'
+      responses:
+        '200':
+          description: Content retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /content/{content_id}/related:
+    get:
+      tags: [Content]
+      summary: Get related content
+      operationId: getRelatedContent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ContentId'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Related content retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentSummary'
+
+  # ============== Search ==============
+  /search:
+    get:
+      tags: [Search]
+      summary: Search content
+      operationId: searchContent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 500
+        - name: filters
+          in: query
+          schema:
+            $ref: '#/components/schemas/SearchFilters'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: highlight
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /search/suggest:
+    get:
+      tags: [Search]
+      summary: Get search suggestions
+      operationId: getSearchSuggestions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Search suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+
+  # ============== Learning Paths ==============
+  /learning-paths:
+    get:
+      tags: [Learning Paths]
+      summary: List user's learning paths
+      operationId: listLearningPaths
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/LearningPathStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Learning paths retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathListResponse'
+
+    post:
+      tags: [Learning Paths]
+      summary: Create learning path
+      operationId: createLearningPath
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLearningPathRequest'
+      responses:
+        '201':
+          description: Learning path created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /learning-paths/{path_id}:
+    get:
+      tags: [Learning Paths]
+      summary: Get learning path
+      operationId: getLearningPath
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200':
+          description: Learning path retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Learning Paths]
+      summary: Update learning path
+      operationId: updateLearningPath
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLearningPathRequest'
+      responses:
+        '200':
+          description: Learning path updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Learning Paths]
+      summary: Delete learning path
+      operationId: deleteLearningPath
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '204':
+          description: Learning path deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /learning-paths/{path_id}/progress:
+    get:
+      tags: [Progress]
+      summary: Get learning path progress
+      operationId: getPathProgress
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200':
+          description: Progress retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathProgress'
+
+    patch:
+      tags: [Progress]
+      summary: Update progress
+      operationId: updateProgress
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressUpdate'
+      responses:
+        '200':
+          description: Progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningPathProgress'
+
+  # ============== Assessments ==============
+  /assessments/{assessment_id}:
+    get:
+      tags: [Assessments]
+      summary: Get assessment
+      operationId: getAssessment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AssessmentId'
+      responses:
+        '200':
+          description: Assessment retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assessment'
+
+  /assessments/{assessment_id}/start:
+    post:
+      tags: [Assessments]
+      summary: Start assessment attempt
+      operationId: startAssessment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AssessmentId'
+      responses:
+        '200':
+          description: Assessment started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentAttempt'
+
+  /assessments/{assessment_id}/submit:
+    post:
+      tags: [Assessments]
+      summary: Submit assessment
+      operationId: submitAssessment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AssessmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentSubmission'
+      responses:
+        '200':
+          description: Assessment submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentResult'
+
+  # ============== Recommendations ==============
+  /recommendations:
+    get:
+      tags: [Recommendations]
+      summary: Get personalized recommendations
+      operationId: getRecommendations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/RecommendationType'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Recommendations retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationListResponse'
+
+  /recommendations/explain:
+    post:
+      tags: [Recommendations]
+      summary: Get recommendation explanation
+      operationId: explainRecommendation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content_id
+              properties:
+                content_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Explanation retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationExplanation'
+
+  # ============== AI Features ==============
+  /ai/curriculum/generate:
+    post:
+      tags: [AI]
+      summary: Generate curriculum
+      operationId: generateCurriculum
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurriculumGenerationRequest'
+      responses:
+        '202':
+          description: Generation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /ai/curriculum/{job_id}:
+    get:
+      tags: [AI]
+      summary: Get curriculum generation status
+      operationId: getCurriculumStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+
+  /ai/explain:
+    post:
+      tags: [AI]
+      summary: Explain concept
+      operationId: explainConcept
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptExplanationRequest'
+      responses:
+        '200':
+          description: Explanation generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptExplanation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /ai/quiz/generate:
+    post:
+      tags: [AI]
+      summary: Generate quiz
+      operationId: generateQuiz
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizGenerationRequest'
+      responses:
+        '202':
+          description: Quiz generation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+
+  /ai/research:
+    post:
+      tags: [AI]
+      summary: Research query
+      operationId: researchQuery
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchRequest'
+      responses:
+        '202':
+          description: Research started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJobResponse'
+
+  /ai/summarize:
+    post:
+      tags: [AI]
+      summary: Summarize content
+      operationId: summarizeContent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content_id
+              properties:
+                content_id:
+                  type: string
+                  format: uuid
+                length:
+                  type: string
+                  enum: [short, medium, long]
+                  default: medium
+      responses:
+        '200':
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentSummary'
+
+  # ============== Knowledge Graph ==============
+  /knowledge/concepts:
+    get:
+      tags: [Knowledge Graph]
+      summary: List concepts
+      operationId: listConcepts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            $ref: '#/components/schemas/EducationLevel'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Concepts retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptListResponse'
+
+  /knowledge/concepts/{concept_id}:
+    get:
+      tags: [Knowledge Graph]
+      summary: Get concept details
+      operationId: getConcept
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: concept_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Concept retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /knowledge/concepts/{concept_id}/prerequisites:
+    get:
+      tags: [Knowledge Graph]
+      summary: Get concept prerequisites
+      operationId: getConceptPrerequisites
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: concept_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Prerequisites retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConceptSummary'
+
+  /knowledge/concepts/{concept_id}/related:
+    get:
+      tags: [Knowledge Graph]
+      summary: Get related concepts
+      operationId: getRelatedConcepts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: concept_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: relationship
+          in: query
+          schema:
+            type: string
+            enum: [prerequisite, leads_to, same_as, part_of, applies_to]
+      responses:
+        '200':
+          description: Related concepts retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConceptSummary'
+
+  /knowledge/paths:
+    get:
+      tags: [Knowledge Graph]
+      summary: Find learning paths between concepts
+      operationId: findConceptPaths
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from_concept
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: to_concept
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paths found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LearningConceptPath'
+
+  # ============== Analytics ==============
+  /analytics/progress:
+    get:
+      tags: [Analytics]
+      summary: Get progress analytics
+      operationId: getProgressAnalytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, quarter, year, all]
+            default: month
+      responses:
+        '200':
+          description: Analytics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressAnalytics'
+
+  /analytics/insights:
+    get:
+      tags: [Analytics]
+      summary: Get AI insights
+      operationId: getInsights
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Insights retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Insight'
+
+  /analytics/strengths-weaknesses:
+    get:
+      tags: [Analytics]
+      summary: Get strengths and weaknesses analysis
+      operationId: getStrengthsWeaknesses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Analysis retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrengthsWeaknessesAnalysis'
+
+# ============== Components ==============
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login
+
+  parameters:
+    ContentId:
+      name: content_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Content unique identifier
+
+    PathId:
+      name: path_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Learning path unique identifier
+
+    AssessmentId:
+      name: assessment_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Assessment unique identifier
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    # ----- Auth Schemas -----
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User password (min 8 characters)
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        role:
+          type: string
+          enum: [learner, instructor]
+          default: learner
+        institution_id:
+          type: string
+          format: uuid
+          description: Institution ID for institutional accounts
+        metadata:
+          type: object
+          description: Additional registration metadata
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: JWT refresh token
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          description: Access token expiry in seconds
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    MFASetupResponse:
+      type: object
+      properties:
+        provisioning_uri:
+          type: string
+        backup_codes:
+          type: array
+          items:
+            type: string
+
+    # ----- User Schemas -----
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [admin, instructor, learner, guest]
+        avatar_url:
+          type: string
+          format: uri
+        institution:
+          $ref: '#/components/schemas/InstitutionSummary'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        is_verified:
+          type: boolean
+        mfa_enabled:
+          type: boolean
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+
+    LearningProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        education_level:
+          $ref: '#/components/schemas/EducationLevel'
+        target_education_level:
+          $ref: '#/components/schemas/EducationLevel'
+        knowledge_state:
+          type: object
+          description: Mastery levels for various concepts
+        learning_style:
+          $ref: '#/components/schemas/LearningStyle'
+        preferred_content_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentType'
+        availability:
+          type: object
+          properties:
+            hours_per_week:
+              type: number
+            preferred_times:
+              type: array
+              items:
+                type: string
+        accessibility_needs:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+
+    LearningProfileUpdate:
+      type: object
+      properties:
+        education_level:
+          $ref: '#/components/schemas/EducationLevel'
+        target_education_level:
+          $ref: '#/components/schemas/EducationLevel'
+        knowledge_state:
+          type: object
+        learning_style:
+          $ref: '#/components/schemas/LearningStyle'
+        preferred_content_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentType'
+
+    UserPreferences:
+      type: object
+      properties:
+        language:
+          type: string
+          default: en
+        theme:
+          type: string
+          enum: [light, dark, system]
+          default: system
+        notifications:
+          type: object
+          properties:
+            email:
+              type: boolean
+            push:
+              type: boolean
+            reminders:
+              type: boolean
+        display:
+          type: object
+          properties:
+            compact_mode:
+              type: boolean
+            show_progress:
+              type: boolean
+
+    UserPreferencesUpdate:
+      type: object
+      properties:
+        language:
+          type: string
+        theme:
+          type: string
+          enum: [light, dark, system]
+        notifications:
+          type: object
+        display:
+          type: object
+
+    InstitutionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        domain:
+          type: string
+
+    # ----- Content Schemas -----
+    ContentType:
+      type: string
+      enum:
+        - book
+        - article
+        - video
+        - course
+        - lesson
+        - quiz
+        - interactive
+        - document
+
+    EducationLevel:
+      type: string
+      enum:
+        - elementary
+        - middle_school
+        - high_school
+        - undergraduate
+        - graduate
+        - doctoral
+        - professional
+
+    ContentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        content_type:
+          $ref: '#/components/schemas/ContentType'
+        education_level:
+          $ref: '#/components/schemas/EducationLevel'
+        thumbnail_url:
+          type: string
+          format: uri
+        duration_minutes:
+          type: integer
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        rating:
+          type: number
+        completion_count:
+          type: integer
+
+    ContentDetail:
+      allOf:
+        - $ref: '#/components/schemas/ContentSummary'
+        - type: object
+          properties:
+            full_description:
+              type: string
+            learning_objectives:
+              type: array
+              items:
+                type: string
+            prerequisites:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConceptSummary'
+            metadata:
+              type: object
+              properties:
+                authors:
+                  type: array
+                  items:
+                    type: string
+                publication_date:
+                  type: string
+                  format: date
+                license:
+                  type: string
+                source_url:
+                  type: string
+                  format: uri
+            ratings:
+              type: object
+              properties:
+                average:
+                  type: number
+                count:
+                  type: integer
+            tags:
+              type: array
+              items:
+                type: string
+
+    ContentListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        has_next:
+          type: boolean
+
+    # ----- Search Schemas -----
+    SearchFilters:
+      type: object
+      properties:
+        content_type:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentType'
+        education_level:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationLevel'
+        language:
+          type: array
+          items:
+            type: string
+        difficulty:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        snippet:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+        content_type:
+          $ref: '#/components/schemas/ContentType'
+        relevance_score:
+          type: number
+        metadata:
+          type: object
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        query_time_ms:
+          type: integer
+
+    # ----- Learning Path Schemas -----
+    LearningPathStatus:
+      type: string
+      enum:
+        - draft
+        - active
+        - paused
+        - completed
+        - abandoned
+
+    CreateLearningPathRequest:
+      type: object
+      required:
+        - title
+        - goal
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        goal:
+          type: string
+          description: Learning goal or topic
+        target_level:
+          $ref: '#/components/schemas/EducationLevel'
+        preferred_format:
+          type: string
+          enum: [video, text, interactive, mixed]
+          default: mixed
+        time_commitment:
+          type: object
+          properties:
+            hours_per_week:
+              type: number
+            total_weeks:
+              type: integer
+        generate_with_ai:
+          type: boolean
+          default: true
+          description: Whether to auto-generate curriculum with AI
+
+    UpdateLearningPathRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/LearningPathStatus'
+
+    LearningPathSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        goal:
+          type: string
+        status:
+          $ref: '#/components/schemas/LearningPathStatus'
+        progress_percentage:
+          type: number
+        module_count:
+          type: integer
+        estimated_hours:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    LearningPathDetail:
+      allOf:
+        - $ref: '#/components/schemas/LearningPathSummary'
+        - type: object
+          properties:
+            modules:
+              type: array
+              items:
+                $ref: '#/components/schemas/PathModule'
+            current_module_id:
+              type: string
+              format: uuid
+            next_lesson_id:
+              type: string
+              format: uuid
+            streak_days:
+              type: integer
+            total_time_spent_minutes:
+              type: integer
+
+    PathModule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        order:
+          type: integer
+        estimated_hours:
+          type: number
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathLesson'
+        is_completed:
+          type: boolean
+        progress_percentage:
+          type: number
+
+    PathLesson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        order:
+          type: integer
+        estimated_minutes:
+          type: integer
+        status:
+          type: string
+          enum: [not_started, in_progress, completed]
+        completed_at:
+          type: string
+          format: date-time
+
+    LearningPathListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LearningPathSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+
+    # ----- Progress Schemas -----
+    LearningPathProgress:
+      type: object
+      properties:
+        path_id:
+          type: string
+          format: uuid
+        overall_progress:
+          type: number
+        modules_completed:
+          type: integer
+        total_modules:
+          type: integer
+        lessons_completed:
+          type: integer
+        total_lessons:
+          type: integer
+        assessments_passed:
+          type: integer
+        total_assessments:
+          type: integer
+        average_score:
+          type: number
+        time_spent_minutes:
+          type: integer
+        streak_days:
+          type: integer
+        last_activity_at:
+          type: string
+          format: date-time
+        module_progress:
+          type: array
+          items:
+            type: object
+            properties:
+              module_id:
+                type: string
+                format: uuid
+              progress:
+                type: number
+              lessons_completed:
+                type: integer
+              total_lessons:
+                type: integer
+
+    ProgressUpdate:
+      type: object
+      properties:
+        lesson_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [in_progress, completed]
+        time_spent_seconds:
+          type: integer
+        quiz_score:
+          type: number
+        notes:
+          type: string
+
+    # ----- Assessment Schemas -----
+    Assessment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        content_id:
+          type: string
+          format: uuid
+        question_count:
+          type: integer
+        question_types:
+          type: array
+          items:
+            type: string
+            enum: [mcq, true_false, short_answer, essay]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, adaptive]
+        time_limit_minutes:
+          type: integer
+        passing_score:
+          type: number
+        attempts_allowed:
+          type: integer
+        shuffle_questions:
+          type: boolean
+
+    AssessmentAttempt:
+      type: object
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        assessment_id:
+          type: string
+          format: uuid
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentQuestion'
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        time_remaining_seconds:
+          type: integer
+
+    AssessmentQuestion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        question_text:
+          type: string
+        question_type:
+          type: string
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+        points:
+          type: number
+
+    AssessmentSubmission:
+      type: object
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        answers:
+          type: array
+          items:
+            type: object
+            properties:
+              question_id:
+                type: string
+                format: uuid
+              answer:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+              essay_text:
+                type: string
+
+    AssessmentResult:
+      type: object
+      properties:
+        assessment_id:
+          type: string
+          format: uuid
+        attempt_id:
+          type: string
+          format: uuid
+        score:
+          type: number
+        total_points:
+          type: number
+        percentage:
+          type: number
+        passed:
+          type: boolean
+        completed_at:
+          type: string
+          format: date-time
+        feedback:
+          type: object
+          properties:
+            overall:
+              type: string
+            question_results:
+              type: array
+              items:
+                type: object
+                properties:
+                  question_id:
+                    type: string
+                    format: uuid
+                  correct:
+                    type: boolean
+                  points_earned:
+                    type: number
+                  feedback:
+                    type: string
+
+    # ----- Recommendation Schemas -----
+    RecommendationType:
+      type: string
+      enum:
+        - courses
+        - lessons
+        - practice
+        - review
+        - next_step
+        - related
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          $ref: '#/components/schemas/ContentSummary'
+        score:
+          type: number
+        reason:
+          type: string
+        reasons_detailed:
+          type: array
+          items:
+            type: string
+        position:
+          type: integer
+
+    RecommendationListResponse:
+      type: object
+      properties:
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+        generated_at:
+          type: string
+          format: date-time
+
+    RecommendationExplanation:
+      type: object
+      properties:
+        content_id:
+          type: string
+          format: uuid
+        explanation:
+          type: string
+        factors:
+          type: array
+          items:
+            type: object
+            properties:
+              factor:
+                type: string
+              weight:
+                type: number
+              description:
+                type: string
+
+    # ----- AI Schemas -----
+    CurriculumGenerationRequest:
+      type: object
+      required:
+        - goal
+      properties:
+        goal:
+          type: string
+          description: Learning goal or topic
+        current_level:
+          $ref: '#/components/schemas/EducationLevel'
+        target_level:
+          $ref: '#/components/schemas/EducationLevel'
+        time_available_hours:
+          type: number
+        preferred_topics:
+          type: array
+          items:
+            type: string
+        preferred_format:
+          type: string
+          enum: [video, text, interactive, mixed]
+        include_assessments:
+          type: boolean
+          default: true
+        constraints:
+          type: object
+          properties:
+            max_modules:
+              type: integer
+            max_lessons_per_module:
+              type: integer
+            include_projects:
+              type: boolean
+
+    AsyncJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        progress:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        result:
+          type: object
+          description: Present when status is 'completed'
+        error:
+          type: string
+          description: Present when status is 'failed'
+
+    ConceptExplanationRequest:
+      type: object
+      required:
+        - concept
+      properties:
+        concept:
+          type: string
+        current_level:
+          $ref: '#/components/schemas/EducationLevel'
+        learning_style:
+          $ref: '#/components/schemas/LearningStyle'
+        include_examples:
+          type: boolean
+          default: true
+        include_analogies:
+          type: boolean
+          default: true
+        include_prerequisites:
+          type: boolean
+          default: true
+        max_length:
+          type: string
+          enum: [short, medium, long]
+          default: medium
+
+    ConceptExplanation:
+      type: object
+      properties:
+        concept:
+          type: string
+        explanation:
+          type: string
+        level:
+          $ref: '#/components/schemas/EducationLevel'
+        examples:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+        analogies:
+          type: array
+          items:
+            type: string
+        prerequisites:
+          type: array
+          items:
+            type: string
+        next_concepts:
+          type: array
+          items:
+            type: string
+        visual_description:
+          type: string
+          description: Description for generating visual aids
+
+    QuizGenerationRequest:
+      type: object
+      required:
+        - content_id
+      properties:
+        content_id:
+          type: string
+          format: uuid
+        question_count:
+          type: integer
+          default: 10
+        question_types:
+          type: array
+          items:
+            type: string
+            enum: [mcq, true_false, short_answer, essay]
+          default: [mcq]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, adaptive]
+          default: adaptive
+        time_limit_minutes:
+          type: integer
+        include_answers:
+          type: boolean
+          default: false
+        focus_topics:
+          type: array
+          items:
+            type: string
+
+    ResearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+          description: Specific sources to search
+        exclude_sources:
+          type: array
+          items:
+            type: string
+        citation_style:
+          type: string
+          enum: [APA, MLA, Chicago, IEEE, Harvard]
+          default: APA
+        include_full_text:
+          type: boolean
+          default: false
+        depth:
+          type: string
+          enum: [quick, standard, comprehensive]
+          default: standard
+
+    # ----- Knowledge Graph Schemas -----
+    LearningStyle:
+      type: string
+      enum:
+        - visual
+        - auditory
+        - reading
+        - kinesthetic
+        - mixed
+
+    ConceptSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          type: string
+        education_level:
+          $ref: '#/components/schemas/EducationLevel'
+
+    ConceptDetail:
+      allOf:
+        - $ref: '#/components/schemas/ConceptSummary'
+        - type: object
+          properties:
+            definition:
+              type: string
+            related_concepts:
+              type: array
+              items:
+                type: object
+                properties:
+                  concept:
+                    $ref: '#/components/schemas/ConceptSummary'
+                  relationship:
+                    type: string
+            prerequisites:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConceptSummary'
+            leads_to:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConceptSummary'
+            content_count:
+              type: integer
+            mastery_metrics:
+              type: object
+
+    ConceptListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptSummary'
+        total:
+          type: integer
+        domains:
+          type: array
+          items:
+            type: string
+
+    LearningConceptPath:
+      type: object
+      properties:
+        concepts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptSummary'
+        estimated_learning_hours:
+          type: number
+        difficulty_progression:
+          type: array
+          items:
+            type: string
+
+    # ----- Analytics Schemas -----
+    ProgressAnalytics:
+      type: object
+      properties:
+        period:
+          type: string
+        total_time_spent_minutes:
+          type: integer
+        lessons_completed:
+          type: integer
+        assessments_passed:
+          type: integer
+        average_score:
+          type: number
+        paths_active:
+          type: integer
+        paths_completed:
+          type: integer
+        daily_activity:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              minutes_spent:
+                type: integer
+              lessons_completed:
+                type: integer
+        topic_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+              percentage:
+                type: number
+                format: float
+              minutes_spent:
+                type: integer
+
+    Insight:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [achievement, suggestion, warning, progress]
+        title:
+          type: string
+        description:
+          type: string
+        action_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+
+    StrengthsWeaknessesAnalysis:
+      type: object
+      properties:
+        strengths:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                format: uuid
+              mastery_level:
+                type: number
+              evidence:
+                type: array
+                items:
+                  type: string
+        weaknesses:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                format: uuid
+              mastery_level:
+                type: number
+              improvement_suggestions:
+                type: array
+                items:
+                  type: string
+        recommended_focus:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                format: uuid
+              priority:
+                type: integer
+              reason:
+                type: string
+
+    # ----- Common Schemas -----
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+        request_id:
+          type: string

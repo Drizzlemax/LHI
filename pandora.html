@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PANDORA - Universal Learning Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white !important;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .gradient-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 540px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: var(--border);
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .architecture-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .arch-layer {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .arch-node {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .arch-node.client {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .arch-node.edge {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .arch-node.gateway {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .arch-node.small {
+            font-size: 0.7rem;
+            padding: 0.5rem 0.75rem;
+            min-width: 80px;
+        }
+
+        .flex-3 {
+            justify-content: space-around;
+        }
+
+        .flex-4 {
+            justify-content: space-around;
+        }
+
+        .arch-connector {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arch-connector::before {
+            content: '';
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--border), var(--primary), var(--border));
+        }
+
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-dark {
+            background: var(--bg-card);
+            border-radius: 24px;
+            margin: 2rem auto;
+            max-width: 1360px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .arch-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .arch-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .arch-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .arch-icon {
+            font-size: 1.5rem;
+        }
+
+        .arch-card-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .arch-features {
+            list-style: none;
+        }
+
+        .arch-features li {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding: 0.375rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .arch-features li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        .stack-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .stack-category {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .stack-category h4 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .stack-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .stack-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+        }
+
+        .doc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .doc-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .doc-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .doc-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .doc-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+
+        .doc-link {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .roadmap {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .roadmap-item {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .roadmap-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .roadmap-marker.done {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .roadmap-marker.current {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .roadmap-content {
+            flex-grow: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .roadmap-phase {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .roadmap-content h4 {
+            font-size: 1.25rem;
+            margin: 0.25rem 0 0.75rem;
+        }
+
+        .roadmap-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .roadmap-date {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .cta-box {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+        }
+
+        .cta-box h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-box p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 4rem 2rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4rem;
+        }
+
+        .footer-brand .logo-text {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-col h4 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.375rem 0;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 1200px) {
+            .arch-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .docs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stack-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .arch-grid, .stack-grid {
+                grid-template-columns: 1fr;
+            }
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">
+                <div class="logo-icon">P</div>
+                <span class="logo-text">PANDORA</span>
+            </a>
+            <div class="nav-links">
+                <a href="#architecture">Architecture</a>
+                <a href="#docs">Documentation</a>
+                <a href="#stack">Tech Stack</a>
+                <a href="#roadmap">Roadmap</a>
+                <a href="https://github.com/pandora/platform" class="nav-btn">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    Open Source AI-Powered Learning Platform
+                </div>
+                <h1 class="hero-title">
+                    Democratizing Knowledge<br>
+                    <span class="gradient-text">Through AI</span>
+                </h1>
+                <p class="hero-description">
+                    PANDORA transforms open-access educational content into personalized learning paths 
+                    using advanced AI. From elementary school to PhD level, we create adaptive, 
+                    accessible learning experiences for millions.
+                </p>
+                <div class="hero-actions">
+                    <a href="#architecture" class="btn btn-primary">
+                        <span>Explore Architecture</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="PANDORA_ARCHITECTURE.md" class="btn btn-secondary">
+                        <span>Read Full Spec</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-value">12+</span>
+                        <span class="stat-label">Microservices</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-value">10M+</span>
+                        <span class="stat-label">Users Target</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-value">99.9%</span>
+                        <span class="stat-label">Uptime SLA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="architecture-diagram">
+                    <div class="arch-layer">
+                        <div class="arch-node client">Client Layer</div>
+                    </div>
+                    <div class="arch-connector"></div>
+                    <div class="arch-layer">
+                        <div class="arch-node edge">CDN / WAF / LB</div>
+                    </div>
+                    <div class="arch-connector"></div>
+                    <div class="arch-layer">
+                        <div class="arch-node gateway">API Gateway</div>
+                    </div>
+                    <div class="arch-connector"></div>
+                    <div class="arch-layer flex-3">
+                        <div class="arch-node">User</div>
+                        <div class="arch-node">Content</div>
+                        <div class="arch-node">AI</div>
+                    </div>
+                    <div class="arch-connector"></div>
+                    <div class="arch-layer flex-4">
+                        <div class="arch-node small">PostgreSQL</div>
+                        <div class="arch-node small">Qdrant</div>
+                        <div class="arch-node small">Neo4j</div>
+                        <div class="arch-node small">Kafka</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="architecture" class="section">
+        <div class="section-header">
+            <h2>System Architecture</h2>
+            <p>Production-ready, cloud-native microservices architecture designed for scale</p>
+        </div>
+        <div class="arch-grid">
+            <div class="arch-card">
+                <div class="arch-card-header">
+                    <span class="arch-icon">⚡</span>
+                    <h3>API Gateway Layer</h3>
+                </div>
+                <ul class="arch-features">
+                    <li>Kong Gateway with rate limiting</li>
+                    <li>JWT authentication & mTLS</li>
+                    <li>Request validation & routing</li>
+                    <li>Distributed tracing (Jaeger)</li>
+                </ul>
+            </div>
+            <div class="arch-card">
+                <div class="arch-card-header">
+                    <span class="arch-icon">🧠</span>
+                    <h3>AI/ML Services</h3>
+                </div>
+                <ul class="arch-features">
+                    <li>vLLM for LLM serving</li>
+                    <li>BGE embeddings (1024 dims)</li>
+                    <li>Hybrid RAG pipeline</li>
+                    <li>Multi-model routing</li>
+                </ul>
+            </div>
+            <div class="arch-card">
+                <div class="arch-card-header">
+                    <span class="arch-icon">📊</span>
+                    <h3>Data Layer</h3>
+                </div>
+                <ul class="arch-features">
+                    <li>PostgreSQL 16 (pgvector)</li>
+                    <li>Qdrant for vectors</li>
+                    <li>Neo4j knowledge graph</li>
+                    <li>Elasticsearch search</li>
+                </ul>
+            </div>
+            <div class="arch-card">
+                <div class="arch-card-header">
+                    <span class="arch-icon">🔄</span>
+                    <h3>Event Processing</h3>
+                </div>
+                <ul class="arch-features">
+                    <li>Apache Kafka event streaming</li>
+                    <li>Celery task workers</li>
+                    <li>Real-time analytics</li>
+                    <li>Content indexing pipeline</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="stack" class="section section-dark">
+        <div class="section-header">
+            <h2>Technology Stack</h2>
+            <p>Best-in-class open-source technologies chosen for each component</p>
+        </div>
+        <div class="stack-grid">
+            <div class="stack-category">
+                <h4>Backend</h4>
+                <div class="stack-items">
+                    <span class="stack-item">Python 3.12</span>
+                    <span class="stack-item">FastAPI</span>
+                    <span class="stack-item">SQLAlchemy 2.0</span>
+                    <span class="stack-item">Pydantic v2</span>
+                    <span class="stack-item">Celery</span>
+                </div>
+            </div>
+            <div class="stack-category">
+                <h4>Frontend</h4>
+                <div class="stack-items">
+                    <span class="stack-item">Next.js 14</span>
+                    <span class="stack-item">TypeScript</span>
+                    <span class="stack-item">Tailwind CSS</span>
+                    <span class="stack-item">Zustand</span>
+                    <span class="stack-item">TanStack Query</span>
+                </div>
+            </div>
+            <div class="stack-category">
+                <h4>AI/ML</h4>
+                <div class="stack-items">
+                    <span class="stack-item">vLLM</span>
+                    <span class="stack-item">LangChain</span>
+                    <span class="stack-item">LlamaIndex</span>
+                    <span class="stack-item">BGE Embeddings</span>
+                    <span class="stack-item">Sentence Transformers</span>
+                </div>
+            </div>
+            <div class="stack-category">
+                <h4>Infrastructure</h4>
+                <div class="stack-items">
+                    <span class="stack-item">Kubernetes</span>
+                    <span class="stack-item">Terraform</span>
+                    <span class="stack-item">ArgoCD</span>
+                    <span class="stack-item">Istio</span>
+                    <span class="stack-item">Helm</span>
+                </div>
+            </div>
+            <div class="stack-category">
+                <h4>Databases</h4>
+                <div class="stack-items">
+                    <span class="stack-item">PostgreSQL 16</span>
+                    <span class="stack-item">Qdrant</span>
+                    <span class="stack-item">Neo4j</span>
+                    <span class="stack-item">Redis 7.2</span>
+                    <span class="stack-item">Elasticsearch</span>
+                </div>
+            </div>
+            <div class="stack-category">
+                <h4>Observability</h4>
+                <div class="stack-items">
+                    <span class="stack-item">Prometheus</span>
+                    <span class="stack-item">Grafana</span>
+                    <span class="stack-item">Loki</span>
+                    <span class="stack-item">Jaeger</span>
+                    <span class="stack-item">Sentry</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="docs" class="section">
+        <div class="section-header">
+            <h2>Documentation</h2>
+            <p>Complete technical specification and development guides</p>
+        </div>
+        <div class="docs-grid">
+            <a href="PANDORA_ARCHITECTURE.md" class="doc-card">
+                <span class="doc-icon">📐</span>
+                <h3>Architecture Spec</h3>
+                <p>Complete system architecture including database schemas, API design, and component specifications</p>
+                <span class="doc-link">Read →</span>
+            </a>
+            <a href="api-spec.yaml" class="doc-card">
+                <span class="doc-icon">🔌</span>
+                <h3>API Specification</h3>
+                <p>OpenAPI 3.1 specification for all REST endpoints with request/response schemas</p>
+                <span class="doc-link">View Spec →</span>
+            </a>
+            <a href="DEVELOPMENT_GUIDE.md" class="doc-card">
+                <span class="doc-icon">👨‍💻</span>
+                <h3>Development Guide</h3>
+                <p>Local development setup, testing strategies, and coding standards</p>
+                <span class="doc-link">Read →</span>
+            </a>
+            <a href="ARCHITECTURE_DECISIONS.md" class="doc-card">
+                <span class="doc-icon">📝</span>
+                <h3>Decision Records</h3>
+                <p>Architecture Decision Records (ADR) documenting key technical choices</p>
+                <span class="doc-link">Read →</span>
+            </a>
+            <a href="DIAGRAMS.md" class="doc-card">
+                <span class="doc-icon">📊</span>
+                <h3>Architecture Diagrams</h3>
+                <p>Mermaid diagrams for all system components and data flows</p>
+                <span class="doc-link">View →</span>
+            </a>
+        </div>
+    </section>
+
+    <section id="roadmap" class="section section-dark">
+        <div class="section-header">
+            <h2>Project Roadmap</h2>
+            <p>Development milestones and timeline</p>
+        </div>
+        <div class="roadmap">
+            <div class="roadmap-item">
+                <div class="roadmap-marker done"></div>
+                <div class="roadmap-content">
+                    <span class="roadmap-phase">Phase 1</span>
+                    <h4>Foundation</h4>
+                    <p>Architecture design, infrastructure setup, core API development</p>
+                    <span class="roadmap-date">Q1 2026</span>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-marker done"></div>
+                <div class="roadmap-content">
+                    <span class="roadmap-phase">Phase 2</span>
+                    <h4>MVP Launch</h4>
+                    <p>User auth, content search, basic learning paths</p>
+                    <span class="roadmap-date">Q2 2026</span>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-marker current"></div>
+                <div class="roadmap-content">
+                    <span class="roadmap-phase">Phase 3</span>
+                    <h4>AI Features</h4>
+                    <p>RAG pipeline, curriculum generation, quiz engine, research assistant</p>
+                    <span class="roadmap-date">Q3 2026</span>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-marker"></div>
+                <div class="roadmap-content">
+                    <span class="roadmap-phase">Phase 4</span>
+                    <h4>Scale & Launch</h4>
+                    <p>Performance optimization, recommendations, visual learning, GA launch</p>
+                    <span class="roadmap-date">Q4 2026 - Q1 2027</span>
+                </div>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-marker"></div>
+                <div class="roadmap-content">
+                    <span class="roadmap-phase">Phase 5</span>
+                    <h4>Growth</h4>
+                    <p>Mobile apps, multi-language, partner integrations</p>
+                    <span class="roadmap-date">2027+</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="cta-box">
+            <h2>Ready to Build the Future of Learning?</h2>
+            <p>Join our open-source community and help democratize education worldwide</p>
+            <div class="cta-actions">
+                <a href="https://github.com/pandora/platform" class="btn btn-primary btn-large">
+                    <span>Star on GitHub</span>
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="PANDORA_ARCHITECTURE.md" class="btn btn-secondary btn-large">
+                    <span>Read the Spec</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">PANDORA</span>
+                <p>Open-source AI-powered universal learning platform</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Documentation</h4>
+                    <a href="PANDORA_ARCHITECTURE.md">Architecture</a>
+                    <a href="api-spec.yaml">API Spec</a>
+                    <a href="DEVELOPMENT_GUIDE.md">Development</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <a href="#">GitHub</a>
+                    <a href="#">Discord</a>
+                    <a href="#">Twitter</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <a href="#">Contributing</a>
+                    <a href="#">Code of Conduct</a>
+                    <a href="#">License</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 PANDORA. Released under Apache 2.0 License.</p>
+        </div>
+    </footer>
+</body>
+</html>
