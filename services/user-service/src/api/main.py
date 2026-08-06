@@ -5,14 +5,16 @@ Main FastAPI Application
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from opentelemetry import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.routes import auth, users
 from src.core.config import settings
+from src.core.database import get_db, init_db, close_db, check_db_connection
 from src.core.logging import setup_logging
 
 # Initialize logging
@@ -26,12 +28,10 @@ tracer = trace.get_tracer(__name__)
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan handler."""
     # Startup
-    # await init_db()
-    # await init_redis()
+    await init_db()
     yield
     # Shutdown
-    # await close_db()
-    # await close_redis()
+    await close_db()
 
 
 # Create FastAPI application
@@ -94,13 +94,11 @@ async def readiness_check() -> dict:
     Readiness check endpoint.
     Returns 200 if the service is ready to accept traffic.
     """
-    # TODO: Check database connectivity
-    # TODO: Check Redis connectivity
+    db_healthy = await check_db_connection()
     return {
-        "status": "ready",
+        "status": "ready" if db_healthy else "not_ready",
         "checks": {
-            "database": "ok",
-            "redis": "ok",
+            "database": "ok" if db_healthy else "failed",
         },
     }
 
