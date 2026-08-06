@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  content-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pandora-content-service
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/pandora_content
+      - REDIS_URL=redis://redis:6379/1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-pandora-content}
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-http://minio:9000}
+      - OTEL_ENABLED=${OTEL_ENABLED:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pandora-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: pandora-content-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pandora_content
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_content_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pandora-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: pandora-content-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_content_data:/data
+    networks:
+      - pandora-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: pandora-content-minio
+    ports:
+      - "9001:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - pandora-network
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/pandora-content --ignore-existing;
+      /usr/bin/mc anonymous set public myminio/pandora-content;
+      exit 0;
+      "
+    networks:
+      - pandora-network
+
+volumes:
+  postgres_content_data:
+  redis_content_data:
+  minio_data:
+
+networks:
+  pandora-network:
+    driver: bridge
