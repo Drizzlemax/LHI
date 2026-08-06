@@ -1,14 +1,25 @@
 """PANDORA Content Service Schemas."""
 from src.schemas.content import (
-    DocumentResponse,
-    DocumentListResponse,
-    DocumentCreate,
-    DocumentUpdate,
+    # Content
+    ContentSummary,
+    ContentDetail,
+    ContentCreate,
+    ContentUpdate,
+    ContentListResponse,
+    RelatedContentResponse,
+    ContentMetadataSchema,
+    # Upload/Download
+    UploadUrlRequest,
+    UploadUrlResponse,
+    DownloadUrlResponse,
+    # Collection
     CollectionResponse,
-    CollectionListResponse,
     CollectionCreate,
     CollectionUpdate,
+    CollectionListResponse,
+    # Tag
     TagResponse,
-    UploadUrlRequest,
-    DownloadUrlRequest,
+    TagCreate,
+    # Media
+    MediaAssetResponse,
 )
