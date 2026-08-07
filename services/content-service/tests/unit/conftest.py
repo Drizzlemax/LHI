@@ -209,3 +209,134 @@ def mock_storage():
     storage.delete_file = AsyncMock(return_value=True)
     storage.file_exists = AsyncMock(return_value=True)
     return storage
+
+
+# ============ Search Fixtures ============
+
+@pytest.fixture
+def sample_search_filters():
+    """Create sample search filters."""
+    from src.search.query_builder import SearchFilters
+    return SearchFilters(
+        query="machine learning",
+        category="course",
+        education_level="undergraduate",
+        language="en",
+        is_public=True,
+        tags=["ai", "ml"],
+    )
+
+
+@pytest.fixture
+def sample_search_result():
+    """Create sample search result."""
+    from src.search.query_builder import SearchResult
+    return SearchResult(
+        total=100,
+        hits=[
+            {
+                "id": "content-1",
+                "score": 0.95,
+                "source": {
+                    "id": "content-1",
+                    "title": "Machine Learning Basics",
+                    "description": "Learn ML fundamentals",
+                    "category": "course",
+                },
+                "highlight": {
+                    "title": ["<mark>Machine</mark> <mark>Learning</mark> Basics"],
+                },
+            },
+            {
+                "id": "content-2",
+                "score": 0.85,
+                "source": {
+                    "id": "content-2",
+                    "title": "Advanced ML Techniques",
+                    "description": "Advanced machine learning",
+                    "category": "course",
+                },
+            },
+        ],
+        aggregations={
+            "categories": {
+                "buckets": [
+                    {"key": "course", "doc_count": 50},
+                    {"key": "book", "doc_count": 30},
+                ]
+            },
+            "education_levels": {
+                "buckets": [
+                    {"key": "undergraduate", "doc_count": 60},
+                    {"key": "graduate", "doc_count": 40},
+                ]
+            },
+        },
+        took_ms=25,
+    )
+
+
+@pytest.fixture
+def sample_vector() -> list:
+    """Create a sample embedding vector."""
+    return [0.1, 0.2, 0.3, 0.4, 0.5, -0.1, -0.2, -0.3]
+
+
+@pytest.fixture
+def sample_vectors() -> list:
+    """Create sample vectors for search testing."""
+    return [
+        {
+            "id": "vec-1",
+            "embedding": [0.9, 0.1, 0.2, 0.3, 0.4, -0.1, -0.2, -0.3],
+            "source": {"title": "Vector 1", "category": "science"},
+        },
+        {
+            "id": "vec-2",
+            "embedding": [0.8, 0.2, 0.3, 0.4, 0.5, -0.2, -0.3, -0.4],
+            "source": {"title": "Vector 2", "category": "science"},
+        },
+        {
+            "id": "vec-3",
+            "embedding": [0.1, 0.9, 0.1, 0.2, 0.3, -0.1, -0.2, -0.3],
+            "source": {"title": "Vector 3", "category": "art"},
+        },
+    ]
+
+
+@pytest.fixture
+def mock_es_client() -> MagicMock:
+    """Create a mock Elasticsearch client."""
+    client = MagicMock()
+    client.info = AsyncMock(return_value={
+        "cluster_name": "test-cluster",
+        "version": {"number": "8.12.0"},
+    })
+    client.cluster = MagicMock()
+    client.cluster.health = AsyncMock(return_value={
+        "status": "green",
+        "cluster_name": "test-cluster",
+        "number_of_nodes": 1,
+        "active_shards": 5,
+    })
+    client.indices = MagicMock()
+    client.indices.exists = AsyncMock(return_value=True)
+    client.indices.create = AsyncMock()
+    client.indices.delete = AsyncMock()
+    client.indices.refresh = AsyncMock()
+    client.search = AsyncMock(return_value={
+        "hits": {
+            "total": {"value": 2},
+            "hits": [
+                {"_id": "1", "_score": 0.95, "_source": {"title": "Test 1"}},
+                {"_id": "2", "_score": 0.85, "_source": {"title": "Test 2"}},
+            ],
+        },
+        "aggregations": {},
+    })
+    client.index = AsyncMock()
+    client.get = AsyncMock(return_value={"_source": {"title": "Test"}})
+    client.delete = AsyncMock()
+    client.update = AsyncMock()
+    client.close = AsyncMock()
+    return client
