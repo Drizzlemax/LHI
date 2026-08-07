@@ -3,187 +3,119 @@ PANDORA Learning Service Progress Routes
 """
 from typing import Annotated
 from uuid import UUID
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.logging import get_logger
+from src.core.database import get_db
+from src.schemas.learning_path import ProgressUpdate
+from src.services.learning_path_service import LearningPathService
 
 router = APIRouter()
 logger = get_logger(__name__)
 
 
-# ============ Schemas ============
-
-class ProgressRecord(BaseModel):
-    """Schema for a learning progress record."""
-    
-    id: UUID
-    user_id: UUID
-    content_id: UUID
-    content_title: str | None = None
-    status: str  # not_started, in_progress, completed, failed
-    progress_percentage: float = 0.0
-    score: float | None = None
-    time_spent_seconds: int = 0
-    started_at: datetime | None = None
-    completed_at: datetime | None = None
-    last_accessed_at: datetime | None = None
-
-
-class ProgressUpdate(BaseModel):
-    """Request schema for updating progress."""
-    
-    progress_percentage: float | None = Field(None, ge=0, le=100)
-    status: str | None = None
-    score: float | None = Field(None, ge=0, le=100)
-    time_spent_seconds: int | None = Field(None, ge=0)
-
-
-class ProgressListResponse(BaseModel):
-    """Response schema for progress list."""
-    
-    records: list[ProgressRecord]
-    total: int
-    skip: int
-    limit: int
-
-
-class LearningStats(BaseModel):
-    """User's overall learning statistics."""
-    
-    user_id: UUID
-    total_content_completed: int = 0
-    total_time_spent_seconds: int = 0
-    average_score: float | None = None
-    current_streak_days: int = 0
-    longest_streak_days: int = 0
-    content_by_category: dict[str, int] = {}
-    content_by_level: dict[str, int] = {}
-
-
 # ============ Routes ============
 
-@router.get("/", response_model=ProgressListResponse)
-async def list_progress(
+@router.patch("/{path_id}/lessons/{lesson_id}/progress")
+async def update_lesson_progress(
+    path_id: UUID,
+    lesson_id: UUID,
     user_id: UUID,
-    skip: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
-    status_filter: str | None = None,
-    content_id: UUID | None = None,
-) -> ProgressListResponse:
-    """
-    List user's learning progress.
-    
-    Returns paginated list of progress records for a user.
-    """
-    # TODO: Implement actual retrieval from Neo4j/database
-    return ProgressListResponse(
-        records=[],
-        total=0,
-        skip=skip,
-        limit=limit,
-    )
-
-
-@router.get("/stats", response_model=LearningStats)
-async def get_learning_stats(
-    user_id: UUID,
-) -> LearningStats:
-    """
-    Get user's learning statistics.
-    
-    Returns aggregated statistics about user's learning activity.
-    """
-    # TODO: Implement stats calculation
-    return LearningStats(user_id=user_id)
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProgressRecord)
-async def create_progress(
-    user_id: UUID,
-    content_id: UUID,
-) -> ProgressRecord:
-    """
-    Create a new progress record.
-    
-    Initializes progress tracking for content.
-    """
-    # TODO: Implement progress creation
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Progress creation not yet implemented",
-    )
-
-
-@router.get("/{progress_id}", response_model=ProgressRecord)
-async def get_progress(
-    progress_id: UUID,
-) -> ProgressRecord:
-    """Get progress record by ID."""
-    # TODO: Implement retrieval
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Progress retrieval not yet implemented",
-    )
-
-
-@router.patch("/{progress_id}", response_model=ProgressRecord)
-async def update_progress(
-    progress_id: UUID,
     data: ProgressUpdate,
-) -> ProgressRecord:
+    db: AsyncSession = Depends(get_db),
+):
     """
-    Update learning progress.
+    Update progress for a lesson in a learning path.
     
-    Updates progress percentage, status, score, and time spent.
+    Updates lesson progress including status, time spent, and quiz results.
     """
-    # TODO: Implement update
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Progress update not yet implemented",
-    )
-
-
-@router.post("/{progress_id}/complete")
-async def mark_complete(
-    progress_id: UUID,
-    score: float | None = None,
-) -> ProgressRecord:
-    """
-    Mark content as completed.
+    service = LearningPathService(db)
+    progress = await service.update_lesson_progress(path_id, lesson_id, user_id, data)
     
-    Finalizes progress and records completion.
-    """
-    # TODO: Implement completion
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Content completion not yet implemented",
-    )
-
-
-@router.post("/{progress_id}/bookmark")
-async def bookmark_content(
-    progress_id: UUID,
-    user_id: UUID,
-) -> dict:
-    """Bookmark content for later."""
-    # TODO: Implement bookmarking
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Bookmark not yet implemented",
-    )
-
-
-@router.get("/streaks/current")
-async def get_current_streak(
-    user_id: UUID,
-) -> dict:
-    """Get user's current learning streak."""
-    # TODO: Implement streak calculation
+    if not progress:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Progress record not found",
+        )
+    
     return {
-        "user_id": str(user_id),
-        "current_streak_days": 0,
-        "longest_streak_days": 0,
+        "id": str(progress.id),
+        "lesson_id": str(progress.lesson_id),
+        "status": progress.status.value,
+        "progress_percentage": progress.progress_percentage,
+        "score": progress.score,
+        "time_spent_seconds": progress.time_spent_seconds,
+    }
+
+
+@router.post("/{path_id}/lessons/{lesson_id}/complete")
+async def complete_lesson(
+    path_id: UUID,
+    lesson_id: UUID,
+    user_id: UUID,
+    score: float | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Mark a lesson as completed.
+    
+    Finalizes lesson progress with optional score.
+    """
+    service = LearningPathService(db)
+    
+    data = ProgressUpdate(
+        status="completed",
+        progress_percentage=100.0,
+        score=score,
+    )
+    
+    progress = await service.update_lesson_progress(path_id, lesson_id, user_id, data)
+    
+    if not progress:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Progress record not found",
+        )
+    
+    return {
+        "id": str(progress.id),
+        "lesson_id": str(progress.lesson_id),
+        "status": progress.status.value,
+        "completed_at": progress.completed_at.isoformat() if progress.completed_at else None,
+    }
+
+
+@router.post("/{path_id}/lessons/{lesson_id}/start")
+async def start_lesson(
+    path_id: UUID,
+    lesson_id: UUID,
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Mark a lesson as in progress.
+    
+    Records the start of lesson consumption.
+    """
+    service = LearningPathService(db)
+    
+    data = ProgressUpdate(
+        status="in_progress",
+    )
+    
+    progress = await service.update_lesson_progress(path_id, lesson_id, user_id, data)
+    
+    if not progress:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Progress record not found",
+        )
+    
+    return {
+        "id": str(progress.id),
+        "lesson_id": str(progress.lesson_id),
+        "status": progress.status.value,
+        "started_at": progress.started_at.isoformat() if progress.started_at else None,
     }
