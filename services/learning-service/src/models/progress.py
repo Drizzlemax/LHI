@@ -157,6 +157,11 @@ class UserProgress(Base):
         "PathLesson",
         back_populates="user_progress",
     )
+    learning_path_rel: Mapped["LearningPath | None"] = relationship(
+        "LearningPath",
+        foreign_keys=[learning_path_id],
+        primaryjoin="UserProgress.learning_path_id==LearningPath.id",
+    )
     
     # Indexes
     __table_args__ = (
@@ -210,7 +215,7 @@ class UserLearningStats(Base):
     highest_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     
     # Badges/achievements
-    badges: Mapped[list[str] | None] = mapped_column(nullable=True)
+    badges: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     achievements: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     
     # Timestamps
@@ -319,6 +324,12 @@ class LearningPathEnrollment(Base):
     __table_args__ = (
         Index("ix_enrollments_user_path", "user_id", "learning_path_id", unique=True),
         Index("ix_enrollments_path_active", "learning_path_id", "is_active"),
+    )
+    
+    # Relationships
+    learning_path: Mapped["LearningPath"] = relationship(
+        "LearningPath",
+        foreign_keys=[learning_path_id],
     )
     
     def __repr__(self) -> str:

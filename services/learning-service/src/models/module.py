@@ -17,6 +17,7 @@ from sqlalchemy import (
     Enum as SQLEnum,
     Index,
     UniqueConstraint,
+    JSON,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -75,9 +76,9 @@ class Module(Base):
     lesson_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     estimated_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
     
-    # Prerequisites
-    prerequisite_module_ids: Mapped[list[uuid.UUID] | None] = mapped_column(
-        "prerequisite_ids",
+    # Prerequisites - stored as JSON
+    prerequisite_ids: Mapped[dict | None] = mapped_column(
+        JSON,
         nullable=True,
     )
     

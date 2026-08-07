@@ -139,11 +139,6 @@ class LearningPath(Base):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    enrollments: Mapped["LearningPathEnrollment"] = relationship(
-        "LearningPathEnrollment",
-        back_populates="learning_path",
-        cascade="all, delete-orphan",
-    )
     
     # Indexes
     __table_args__ = (
