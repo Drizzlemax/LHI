@@ -39,6 +39,16 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/1"
     
+    # Elasticsearch
+    elasticsearch_hosts: list[str] = Field(
+        default=["http://localhost:9200"]
+    )
+    elasticsearch_username: str = ""
+    elasticsearch_password: str = ""
+    elasticsearch_verify_certs: bool = True
+    elasticsearch_ca_certs: str | None = None
+    elasticsearch_index_prefix: str = "pandora_"
+    
     # AWS S3
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
@@ -83,12 +93,25 @@ class Settings(BaseSettings):
                 raise ValueError(f"Invalid database scheme: {parsed.scheme}")
         return v
     
+    @field_validator("elasticsearch_hosts", mode="before")
+    @classmethod
+    def parse_elasticsearch_hosts(cls, v: Any) -> list[str]:
+        """Parse Elasticsearch hosts from string or list."""
+        if isinstance(v, str):
+            return [h.strip() for h in v.split(",")]
+        return v or ["http://localhost:9200"]
+    
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse CORS origins from comma-separated string."""
         if isinstance(self.cors_origins, str):
             return [o.strip() for o in self.cors_origins.split(",")]
         return self.cors_origins
+    
+    @property
+    def content_index_name(self) -> str:
+        """Get the full content index name."""
+        return f"{self.elasticsearch_index_prefix}content"
 
 
 @lru_cache
